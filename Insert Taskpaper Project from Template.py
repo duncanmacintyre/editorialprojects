@@ -32,22 +32,30 @@ templates = {i[1]:i[0] for i in re.findall('((.+):(?:\n.+)+)', editor.get_file_c
 # the following code:
 # 1. gets the project names (the keys in the templates dictionary)
 # 1. uses Editorial's built-in dialogs module to ask the user to choose from a list of these
-# 2. gets the project contents corresponding to the chosen project name
-#    (the value relating to the chosen key)
-# 3. stores this under chosenTemplate
-chosenTemplate = templates[dialogs.list_dialog(title = 'Choose a template:', items = templates.keys())]
+chosenTemplate = dialogs.list_dialog(title = 'Choose a template:', items = templates.keys())
 
-# set up a list to hold variable names
-# (the user will be asked to enter values for these)
-variableNames = []
-# use a regular expression to find each variable in the template contents
-for i in re.finditer('{(.+?)}', chosenTemplate):
-	# unless it has already been done, append each variable name to the variableNames list
-	if i.group(1) not in variableNames: variableNames.append(i.group(1))
-
-# the following code:
-# 1. uses Editorial's built-in dialogs module to ask the user to fill out a form, where
-#    there is one text field for each variable found in the variableNames list
-# 2. uses str.format() to insert the variable values given by the user into the template
-# 3. inserts the resulting text into the open document
-editor.insert_text(chosenTemplate.format(**dialogs.form_dialog(title='Enter values for the following variables:', fields=[{'type':'text', 'key':i, 'title':i} for i in variableNames]) if len(variableNames) > 0 else {}))
+# if dialog was not cancelled
+if chosenTemplate is not None:
+	
+	# get the project contents corresponding to the chosen project name (the value relating to the chosen key), store this under chosenTemplate
+	chosenTemplate = templates[chosenTemplate]
+	
+	# set up a list to hold variable names
+	# (the user will be asked to enter values for these)
+	variableNames = []
+	# use a regular expression to find each variable in the template contents
+	for i in re.finditer('{(.+?)}', chosenTemplate):
+		# unless it has already been done, append each variable name to the variableNames list
+		if i.group(1) not in variableNames: variableNames.append(i.group(1))
+	
+	# uses Editorial's built-in dialogs module to ask the user to fill out a form,
+	# where there is one text field for each variable found in the variableNames list, store
+	# input in variableValues
+	# (if no variables are used, an empty dictionary is stored in variableValues instead)
+	variableValues = dialogs.form_dialog(title='Enter values for the following variables:', fields=[{'type':'text', 'key':i, 'title':(i.title() + ':')} for i in variableNames]) if len(variableNames) > 0 else {}
+	
+	# if dialog was not cancelled
+	if variableValues is not None:
+		# use str.format() to insert the variable values into the template, insert the resulting
+		# text into the open document
+		editor.insert_text(chosenTemplate.format(**variableValues))
