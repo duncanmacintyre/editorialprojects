@@ -1,6 +1,7 @@
 # Insert Taskpaper Project from Template
 # A workflow for the iOS text editor Editorial
 # Copyright (c) 2017 Duncan MacIntyre
+# Licensed under the MIT License, see LICENSE.txt
 
 # It is recommended to have an understanding of taskpaper before continuing:
 # http://omz-software.com/editorial/docs/ios/editorial_writing_todo_lists.html
